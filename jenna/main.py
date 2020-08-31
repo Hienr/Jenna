@@ -1,19 +1,9 @@
-import player
+import player, api
 from collections import namedtuple 
 from player import JobTypes
-import os 
+from api import YouTubeAPI
 
-from googleapiclient.discovery import build
-youtube = build('youtube', 'v3', developerKey=os.environ.get('YOUTUBE_API'))
-
-request = youtube.channels().list(
-    part='statistics',
-    forUsername='schafer5'
-)
-
-response = request.execute()
-
-print(response)
+youtubeAPI = api.YouTubeAPI()
 
 Job = namedtuple('Job', 'id url')
 
@@ -26,5 +16,15 @@ while True:
 
     if (action == JobTypes['ADD']):
         player.enqueue_job((action, url))
+    elif (action == 11):
+        search_results = youtubeAPI.search_by_keyword(input("Keyword: "))
+
+        for item in search_results.values():
+            print(item)
+        
+        keys_list = list(search_results)
+        
+        url = "https://www.youtube.com/watch?v=" + keys_list[int(input("Pick an item: "))]
+        player.enqueue_job((0, url))
     else:
         player.enqueue_job((action, None))
